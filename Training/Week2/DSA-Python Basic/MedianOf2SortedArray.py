@@ -7,9 +7,7 @@ nums2 = list(map(int,data[1].split()))
 length1 = len(nums1)
 length2 = len(nums2)
 merged_array = list()
-s = "dsa"
-s = s[::-1]
-print(s)
+
 left1 = 0
 left2 = 0
 while left1 < length1 and left2 < length2:
