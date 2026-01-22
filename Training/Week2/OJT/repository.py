@@ -1,6 +1,5 @@
-from copy import copy
+
 from datetime import datetime
-import json
 import pickle
 
 
@@ -14,7 +13,6 @@ class UserPurchaseRepo:
         if path.endswith('.pkl') != True:
             raise Exception('Path must end with .pkl')  
         reader = open(path,'rb')
-        # Lấy ra dữ liệu từ file
         data = pickle.load(reader)
         reader.close()
 
@@ -23,27 +21,18 @@ class UserPurchaseRepo:
         # Tạo ra dictionary theo user_id
         self.type_dict_of_data = {purchase['user_id']:purchase for purchase in self.remake_data}  
         
-
-    def getAllUserPurchase(self) -> dict:
-        dict = {}
-        dict['users'] = self.remake_data
-        dict['timestamp'] = datetime.now().timestamp()
-        return dict
-
     # refactor data
     def __refactor_data(self,data:list) -> list:
         dedup_data = set()
         for purchase in data:
-            count = 1
-            haveValue = 0
-            attr = purchase.get('attribute', {})
-            while True:
-                value = attr.get(f"value{count:02}")
+            totalValue = 0
+            attribute = purchase.get('attribute', {})
+            for i in range(1,4):
+                value = attribute.get(f"value{i:02}")
                 if value is None:
-                    break
-                haveValue += value
-                count += 1
-            purchase['have_value'] = haveValue
+                    continue
+                totalValue += value
+            purchase['have_value'] = totalValue
 
             purchase_id = purchase.get('purchase_id')
             if purchase_id in dedup_data:
@@ -53,9 +42,27 @@ class UserPurchaseRepo:
                 dedup_data.add(purchase_id)
         return data
 
+
+    def getAllUserPurchase(self) -> dict:
+        dict = {}
+        dict['users'] = self.remake_data
+        dict['timestamp'] = datetime.now().timestamp()
+        return dict
+
     def getUserById(self, user_id) -> dict:
         print(self.type_dict_of_data.get(user_id))
         return self.type_dict_of_data.get(user_id)
+
+    def getTotalPriceByUserId(self,user_id) -> int:
+        attribute = self.type_dict_of_data.get(user_id).get('attribute')
+        totalPrice = 0 
+        for i in range(1,4):
+            currentValue = attribute.get(f'value{i:02}')
+            currentPrice = attribute.get(f'price{i:02}')
+            if currentValue is None or currentPrice is None:
+                continue
+            totalPrice += int(currentValue)*int(currentPrice)
+        return totalPrice
 
 def get_repo(path):
     return UserPurchaseRepo(path)    
