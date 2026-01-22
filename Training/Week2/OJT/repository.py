@@ -1,4 +1,5 @@
 
+import json
 from datetime import datetime
 import pickle
 
@@ -25,6 +26,7 @@ class UserPurchaseRepo:
     def __refactor_data(self,data:list) -> list:
         dedup_data = set()
         for purchase in data:
+            # tính toán have_value
             totalValue = 0
             attribute = purchase.get('attribute', {})
             for i in range(1,4):
@@ -34,12 +36,17 @@ class UserPurchaseRepo:
                 totalValue += value
             purchase['have_value'] = totalValue
 
+            # tính lại point và assign_point
             purchase_id = purchase.get('purchase_id')
             if purchase_id in dedup_data:
                 purchase['point'] = 0
                 purchase['assign_point'] = 0
             else:
                 dedup_data.add(purchase_id)
+                
+            # format lại purchased_date
+            purchase['purchase_at'] = purchase['purchased_date'].strftime('%Y-%m-%d %H:%M:%S')
+            del purchase['purchased_date']
         return data
 
 
@@ -50,7 +57,6 @@ class UserPurchaseRepo:
         return dict
 
     def getUserById(self, user_id) -> dict:
-        print(self.type_dict_of_data.get(user_id))
         return self.type_dict_of_data.get(user_id)
 
     def getTotalPriceByUserId(self,user_id) -> int:

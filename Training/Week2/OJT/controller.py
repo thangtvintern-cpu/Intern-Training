@@ -18,7 +18,10 @@ def get_user_by_id(user_id) -> dict:
 
 def get_total_price_by_user_id(user_id) -> int:
     return repo.getTotalPriceByUserId(user_id)
+
 if __name__ == '__main__':
-    print(get_all_user_purchase())
+    c = open('api-reponse-2.json','w',encoding='utf-8')
+    c.write(get_all_user_purchase())
+    c.close()
     print(get_user_by_id('m6zc646sqc8akVQSnJfecq'))
     print(get_total_price_by_user_id('m6zc646sqc8akVQSnJfecq'))
