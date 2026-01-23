@@ -1,10 +1,9 @@
 
-from textwrap import indent
-import json
+from pathlib import Path
 from collections import defaultdict
-import json
 from datetime import datetime
 import pickle
+from functools import lru_cache
 
 
 
@@ -20,15 +19,13 @@ class UserPurchaseRepo:
         data = pickle.load(reader)
         reader.close()
 
-        # refactor data (thêm have_value, point, assign_point)
+        # refactor data (thêm have_value, point, assign_point,gom purchase theo user_id)
         self.remake_data = self.__refactor_data(data)
-        # Tạo ra dictionary theo user_id
-        #self.type_dict_of_data = {purchase['user_id']:purchase for purchase in self.remake_data}  
         
     # refactor data
     def __refactor_data(self,data:list) -> list:
         dedup_data = set()
-        remade_data = defaultdict(list)
+        new_data = defaultdict(list)
         for purchase in data:
             # tính toán have_value
             totalValue = 0
@@ -55,32 +52,50 @@ class UserPurchaseRepo:
             # gom purchase cùng user_id
             user_id = purchase['user_id']
             del purchase['user_id']
-            remade_data[user_id].append(purchase)
+            new_data[user_id].append(purchase)
 
-        return [{"user_id":key,"purchase":value} for key,value in remade_data.items()]
+        self.type_dict_of_data = new_data
+        return [{"user_id":key,"purchase":value} for key,value in new_data.items()]
 
 
-    def getAllUserPurchase(self) -> dict:
+    def getAllData(self) -> dict:
         dict = {}
         dict['users'] = self.remake_data
         dict['timestamp'] = datetime.now().timestamp()
         return dict
 
-    # def getUserById(self, user_id) -> dict:
-    #     return self.type_dict_of_data.get(user_id)
+    def get_all_purchase_by_user_id(self,user_id:str) -> list:
+        return self.type_dict_of_data.get(user_id,[])
 
-    # def getTotalPriceByUserId(self,user_id) -> int:
-    #     attribute = self.type_dict_of_data.get(user_id).get('attribute')
-    #     totalPrice = 0 
-    #     for i in range(1,4):
-    #         currentValue = attribute.get(f'value{i:02}')
-    #         currentPrice = attribute.get(f'price{i:02}')
-    #         if currentValue is None or currentPrice is None:
-    #             continue
-    #         totalPrice += int(currentValue)*int(currentPrice)
-    #     return totalPrice
+    def get_total_price_by_user_id(self,user_id:str) -> int:
+        total_price = 0
+        for purchase in self.get_all_purchase_by_user_id(user_id):
+            for i in range(1,4):
+                value = purchase['attribute'].get(f'value{i:02}')
+                price = purchase['attribute'].get(f'price{i:02}')
+                if value is None or price is None:
+                    continue
+                total_price += value * price
+        return total_price
+    def get_total_price_by_user_id_and_purchase_id(self,user_id:str,purchase_id:str) -> int:
+        total_price = 0
+        for purchase in self.get_all_purchase_by_user_id(user_id):
+            if purchase['purchase_id'] == purchase_id:
+                for i in range(1,4):
+                    value = purchase['attribute'].get(f'value{i:02}')
+                    price = purchase['attribute'].get(f'price{i:02}')
+                    if value is None or price is None:
+                        continue
+                    total_price += value * price
+                break
+        return total_price
 
-def get_repo(path):
+
+
+BASE_DIR = Path(__file__).resolve().parent
+path = str(BASE_DIR / "data_json.pkl")
+@lru_cache(maxsize=None)
+def get_repo():
     return UserPurchaseRepo(path)    
 
 

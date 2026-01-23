@@ -1,6 +1,6 @@
 
 from datetime import datetime,timezone
-from controller import get_user_by_id
+from controller import get_user_by_id,get_total_price_by_user_id
 def test_get_user_by_id():
     user_id = 'm6zc646sqc8akVQSnJfecq'
     user = {'user_id': 'm6zc646sqc8akVQSnJfecq',
@@ -14,3 +14,8 @@ def test_get_user_by_id():
             'point': 0,
             'have_value': 4}
     assert get_user_by_id(user_id) == user
+
+
+def test_get_total_price_by_user_id():
+    user_id = 'm6zc646sqc8akVQSnJfecq'
+    assert get_total_price_by_user_id(user_id) == 12000
