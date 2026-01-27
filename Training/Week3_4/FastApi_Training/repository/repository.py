@@ -80,6 +80,7 @@ class UserPurchaseRepo:
                     continue
                 total_price += value * price
         return total_price
+
     def get_total_price_by_user_id_and_purchase_id(self,user_id:str,purchase_id:str) -> int:
         total_price = 0
         for purchase in self.get_all_purchase_by_user_id(user_id):
@@ -107,6 +108,7 @@ class UserPurchaseRepo:
             'point':0,
             'have_value':0
         })
+        print("run create_purchase_by_user_id")
         return {'user_id':user_id,'purchase_id':purchase_id}
 
 

@@ -29,4 +29,31 @@ class Purchase(BaseModel):
 class User(BaseModel):
     user_id: str
     purchase: list[Purchase]
-
+    model_config = {
+        'example':{
+            'user_id':'123',
+            'purchase':[
+                {
+                    'purchase_id':'123',
+                    'package_id':'123',
+                    'tenant_id':'123',
+                    'purchase_at':'2022-01-01',
+                    'stock_category':'123',
+                    'attribute':{
+                        'name01':'123',
+                        'price01':123,
+                        'value01':123,
+                        'name02':'123',
+                        'price02':123,
+                        'value02':123,
+                        'name03':'123',
+                        'price03':123,
+                        'value03':123
+                    },
+                    'assign_point':123,
+                    'point':123,
+                    'have_value':123
+                }
+            ]
+        }
+    }
