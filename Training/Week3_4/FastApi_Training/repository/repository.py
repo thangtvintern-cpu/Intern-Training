@@ -4,13 +4,11 @@ from collections import defaultdict
 from datetime import datetime
 import pickle
 from functools import lru_cache
-
+import uuid
 
 
 # Giả lập repository
 class UserPurchaseRepo:
-    remake_data = None
-    type_dict_of_data = None
 
     def __init__(self,path):
         if path.endswith('.pkl') != True:
@@ -21,7 +19,11 @@ class UserPurchaseRepo:
 
         # refactor data (thêm have_value, point, assign_point,gom purchase theo user_id)
         self.remake_data = self.__refactor_data(data)
-        
+    
+    def __gererate_purchase_id(self):
+        return str(uuid.uuid4())
+    def __generate_package_id(self):
+        return str(uuid.uuid4())
     # refactor data
     def __refactor_data(self,data:list) -> list:
         dedup_data = set()
@@ -64,8 +66,9 @@ class UserPurchaseRepo:
         dict['timestamp'] = datetime.now().timestamp()
         return dict
 
-    def get_all_purchase_by_user_id(self,user_id:str) -> list:
-        return self.type_dict_of_data.get(user_id,[])
+    def get_all_purchase_by_user_id(self,user_id:str,skip:int,limit:int|None = None) -> list:
+        lst =  self.type_dict_of_data.get(user_id,[])
+        return lst[skip:skip+limit] if limit else lst[skip:]
 
     def get_total_price_by_user_id(self,user_id:str) -> int:
         total_price = 0
@@ -77,6 +80,7 @@ class UserPurchaseRepo:
                     continue
                 total_price += value * price
         return total_price
+
     def get_total_price_by_user_id_and_purchase_id(self,user_id:str,purchase_id:str) -> int:
         total_price = 0
         for purchase in self.get_all_purchase_by_user_id(user_id):
@@ -90,6 +94,22 @@ class UserPurchaseRepo:
                 break
         return total_price
 
+    def create_purchase_by_user_id(self,user_id:str,attribute:dict) -> dict:
+        purchase_id = self.__gererate_purchase_id()
+        package_id = self.__generate_package_id()
+        self.type_dict_of_data[user_id].append({
+            'purchase_id':purchase_id,
+            'package_id':package_id,
+            'tenant_id':user_id,
+            'purchase_at':datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'stock_category':'',
+            'attribute':attribute,
+            'assign_point':0,
+            'point':0,
+            'have_value':0
+        })
+        print("run create_purchase_by_user_id")
+        return {'user_id':user_id,'purchase_id':purchase_id}
 
 
 BASE_DIR = Path(__file__).resolve().parent
