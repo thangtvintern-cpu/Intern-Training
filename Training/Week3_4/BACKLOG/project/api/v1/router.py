@@ -1,5 +1,10 @@
 from fastapi import APIRouter
-from api.v1.products import router as products_router
+from api.v1.users import public_user_router,private_user_router
+from api.v1.auth import public_auth_router,private_auth_router 
+
 
 router = APIRouter(prefix="/api/v1",tags=["v1"])
-router.include_router(products_router)
+router.include_router(public_user_router)
+router.include_router(private_user_router)
+router.include_router(public_auth_router)
+router.include_router(private_auth_router)
