@@ -66,12 +66,13 @@ def parse_token(token:str):
     except JWTError:
         return None
 
-def verify_token(credentials:HTTPAuthorizationCredentials = Depends(security)):
+
+def verify_token(credentials:HTTPAuthorizationCredentials = Depends(security)) -> None:
     try:
-        payload = jwt.decode(credentials.credentials,SECRET_KEY,algorithms=["HS256"])
-        return True
+        jwt.decode(credentials.credentials,SECRET_KEY,algorithms=["HS256"])
     except JWTError:
         raise HTTPException(status_code=401,detail="Token không hợp lệ")
+
 
 def get_current_user(credentials:HTTPAuthorizationCredentials = Depends(security),
     session:Session= Depends(get_session)

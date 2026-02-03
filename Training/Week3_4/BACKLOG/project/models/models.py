@@ -1,4 +1,5 @@
 
+from sqlmodel import Relationship
 from sqlalchemy import UUID
 from typing import Optional
 from uuid import uuid4,UUID
@@ -45,5 +46,28 @@ class User(BaseModel,table=True):
         default="user",
         nullable=False
     )
+    products: list["Product"] = Relationship(back_populates="user")
 
-
+class Product(BaseModel,table=True):
+    __tablename__ = "products"
+    name: str = Field(
+        nullable=False,
+        unique=True
+    )
+    price: int = Field(
+        nullable=False
+    )
+    stock: int = Field(
+        nullable=False
+    )
+    description: str = Field(
+        nullable=True
+    )
+    is_active: bool = Field(
+        default=True
+    )
+    user_id: UUID = Field(
+        nullable=False,
+        foreign_key="users.id"
+    )
+    user: "User" = Relationship(back_populates="products")
