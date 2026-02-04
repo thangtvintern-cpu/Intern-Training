@@ -1,59 +1,89 @@
-
+from core.security import security
+from fastapi.security import HTTPAuthorizationCredentials
+from datetime import datetime
+from core.security import TokenPayLoad
+from service.redis_service import get_redis_service
+from service.redis_service import RedisService
 from http import HTTPStatus
 from sqlmodel import select
-from core.security import create_refresh_token,verify_password,create_access_token,verify_token
+from core.security import (
+    create_refresh_token,
+    create_access_token,
+    parse_token,
+    UserRole,
+)
+from core.hash import verify_password
 from fastapi import HTTPException
 from models.models import User
 from fastapi import Depends
 from schemas.auth import LoginRequest
 from schemas.auth import LoginResponse
-from fastapi import APIRouter,Response
+from fastapi import APIRouter, Response
 from db.db_config import get_session
 from sqlmodel import Session
 
-public_auth_router = APIRouter(prefix="/auth",tags=["v1 - auth"])
-private_auth_router = APIRouter(prefix="/auth",dependencies=[Depends(verify_token)],tags=["v1 - auth"])
+public_auth_router = APIRouter(prefix="/auth", tags=["v1 - auth"])
+private_auth_router = APIRouter(
+    prefix="/auth", dependencies=[Depends(parse_token)], tags=["v1 - auth"]
+)
 
 
-@public_auth_router.post("/login",response_model=LoginResponse,status_code=HTTPStatus.OK)
-def login(login_request:LoginRequest,
-response:Response,
-session:Session = Depends(get_session)
+@public_auth_router.post(
+    "/login", response_model=LoginResponse, status_code=HTTPStatus.OK
+)
+def login(
+    login_request: LoginRequest,
+    response: Response,
+    session: Session = Depends(get_session),
 ):
     try:
-        user = session.exec(select(User).where(User.email == login_request.email)).first()
+        user = session.exec(
+            select(User).where(User.email == login_request.email)
+        ).first()
         if user is None:
-            raise HTTPException(status_code=403,detail="user not found")
+            raise HTTPException(status_code=403, detail="user not found")
 
-        if not verify_password(login_request.password,user.password):
-            raise HTTPException(status_code=403,detail="password not match")
+        if not verify_password(login_request.password, user.password):
+            raise HTTPException(status_code=403, detail="password not match")
 
-        access_token = create_access_token(user.id,user.role)
-        refresh_token = create_refresh_token(user.id,user.role)
+        access_token = create_access_token(user.id, user.role)
+        refresh_token = create_refresh_token(user.id, user.role)
 
-        response.set_cookie("refresh_token",
+        response.set_cookie(
+            "refresh_token",
             refresh_token,
             httponly=True,
             secure=True,
             samesite="strict",
-            max_age=60*60*24*7
+            max_age=60 * 60 * 24 * 7,
         )
 
-        return LoginResponse(
-            access_token=access_token
-        )
+        return LoginResponse(access_token=access_token)
     except Exception as e:
-        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR,detail=f"{e}" + "Something went wrong in creating the token")
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            detail=f"{e}" + "Something went wrong in creating the token",
+        )
 
-#------------------------------------------------------------------------------------------------------------------
 
+# ------------------------------------------------------------------------------------------------------------------
 
 
 # Private Endpoints
-@private_auth_router.post("/logout",status_code=HTTPStatus.OK)
-def logout(response:Response):
+@private_auth_router.post("/logout", status_code=HTTPStatus.OK)
+async def logout(
+    response: Response,
+    redis_service: RedisService = Depends(get_redis_service),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+):
     try:
+        payload = await parse_token(credentials, redis_service)
+        ttl = payload.exp - int(datetime.now().timestamp())
+        await redis_service.add_to_cache(credentials.credentials, payload.sub, ttl=ttl)
         response.delete_cookie("refresh_token")
-        return {"message":"Logout successfully"}
+        return {"message": "Logout successfully"}
     except Exception as e:
-        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR,detail=f"{e}" + "Something went wrong when deleting the cookie")
+        raise HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            detail=f"{e}" + "Something went wrong when deleting the cookie",
+        )
