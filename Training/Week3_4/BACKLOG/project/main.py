@@ -1,4 +1,5 @@
 
+from sqlmodel import SQLModel
 from core.config import REDIS_URL
 from redis.asyncio import Redis
 from core.exceptions import register_exception_handler
@@ -10,7 +11,7 @@ app = FastAPI()
 app.include_router(v1_router)
 
 
-create_db_and_table()
+
 register_exception_handler(app)
 
 @app.get("/")
@@ -22,6 +23,6 @@ def hello_world():
 @app.on_event("startup")
 async def test_redis():
     redis = Redis.from_url(REDIS_URL, decode_responses=True)
-    print(await redis.ping())
+    print("Redis is running: ",await redis.ping())
 
 

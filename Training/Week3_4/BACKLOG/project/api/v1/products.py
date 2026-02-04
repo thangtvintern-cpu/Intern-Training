@@ -1,20 +1,16 @@
-from uuid import UUID
+from service.product_service import get_product_service,ProductService
 from fastapi import Query
 from typing import Annotated
 from schemas.products import Pagination
 from core.security import get_current_user, parse_token, UserRole
 from models.models import User
-from fastapi import HTTPException
 from schemas.products import ProductUpdate
 from schemas.products import ProductCreate
 from http import HTTPStatus
-from sqlmodel import select
-from db.db_config import get_session
-from sqlalchemy.orm import Session
 from fastapi import Depends
 from fastapi import APIRouter
 from schemas.products import ProductResponse
-from models.models import Product
+
 
 public_product_router = APIRouter(prefix="/products", tags=["v1 - products"])
 private_product_router = APIRouter(
@@ -26,113 +22,54 @@ private_product_router = APIRouter(
 @public_product_router.get(
     "/", response_model=list[ProductResponse], status_code=HTTPStatus.OK
 )
-def get_all_products(
-    pagination: Annotated[Pagination, Query()], session: Session = Depends(get_session)
+def get_products_pagination(
+    pagination: Annotated[Pagination, Query()],product_service:ProductService = Depends(get_product_service)
 ):
-    try:
-        return session.exec(
-            select(Product)
-            .order_by(Product.price.asc())
-            .offset(pagination.offset)
-            .limit(pagination.limit)
-        ).all()
-    except Exception as e:
-        print(e)
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            detail="Something went wrong when querying all products",
-        )
+    return product_service.get_product_with_pagination(pagination.offset,pagination.limit)
 
+@public_product_router.get(
+    "/all", response_model=list[ProductResponse], status_code=HTTPStatus.OK
+)
+def get_all_products(product_service:ProductService = Depends(get_product_service)):
+    return product_service.get_all_products()
 
 @public_product_router.get(
     "/{id}", response_model=ProductResponse, status_code=HTTPStatus.OK
 )
-def get_product_by_id(id: str, session: Session = Depends(get_session)):
-    try:
-        product_model = session.get(Product, UUID(id))
-        if not product_model:
-            raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND, detail="Product not found"
-            )
-        return product_model
-    except Exception as e:
-        print(e)
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            detail="Something went wrong when querying a product",
-        )
+def get_product_by_id(id: str,product_service:ProductService = Depends(get_product_service)):
+    return product_service.get_product_by_id(id)
 
 
 # ------------------------------------------------------------------------------------------------------------------
 
 
 # Private Endpoints
+
 @private_product_router.post(
     "/", response_model=ProductResponse, status_code=HTTPStatus.CREATED
 )
 def create_product(
     product: ProductCreate,
-    session: Session = Depends(get_session),
+    product_service:ProductService = Depends(get_product_service),
     current_user: User = Depends(get_current_user),
 ):
-    try:
-        product_model = Product(**product.model_dump(exclude_unset=True))
-        current_user.products.append(product_model)
-        session.add(current_user)
-        session.commit()
-        session.refresh(current_user)
-        return product_model
-    except Exception as e:
-        print(e)
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            detail="Something went wrong when creating a product",
-        )
+    return product_service.create_product(product,current_user)
 
 
 @private_product_router.put("/{id}", status_code=HTTPStatus.OK)
 def update_product(
-    user_role: UserRole,
     id: str,
     product_update: ProductUpdate,
-    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+    product_service:ProductService = Depends(get_product_service),
 ):
-    try:
-        product_model = session.get(Product, UUID(id))
-        if not product_model:
-            raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND, detail="Product not found"
-            )
-        for k, v in product_update.model_dump(exclude_unset=True).items():
-            setattr(product_model, k, v)
-        session.add(product_model)
-        session.commit()
-        session.refresh(product_model)
-        return product_model
-    except Exception as e:
-        print(e)
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            detail="Something went wrong when updating a product",
-        )
+    return product_service.update_product(product_update,id,current_user)
 
 
 @private_product_router.delete("/{id}", status_code=HTTPStatus.OK)
 def delete_product(
-    user_role: UserRole, id: str, session: Session = Depends(get_session)
+    id: str,
+    current_user: User = Depends(get_current_user),
+    product_service:ProductService = Depends(get_product_service),
 ):
-    try:
-        product_model = session.get(Product, UUID(id))
-        if not product_model:
-            raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND, detail="Product not found"
-            )
-        session.delete(product_model)
-        session.commit()
-        return {"message": "Product deleted successfully"}
-    except Exception as e:
-        print(e)
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            detail="Something went wrong when deleting a product",
-        )
+    return product_service.delete_product(id,current_user)
