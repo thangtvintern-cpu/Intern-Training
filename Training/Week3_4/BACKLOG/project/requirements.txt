@@ -1,0 +1,11 @@
+
+pydantic == 2.10.3
+redis == 5.0.1
+
+sqlmodel == 0.0.16
+fastapi == 0.111.0
+
+jose[cryptography] == 3.3.0
+bcrypt == 4.0.1
+
+

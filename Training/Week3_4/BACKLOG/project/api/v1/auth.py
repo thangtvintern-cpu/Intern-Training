@@ -1,7 +1,6 @@
 from core.security import security
-from fastapi.security import HTTPAuthorizationCredentials
+from fastapi.security import HTTPAuthorizationCredentials, OAuth2PasswordRequestForm
 from datetime import datetime
-from core.security import TokenPayLoad
 from service.redis_service import get_redis_service
 from service.redis_service import RedisService
 from http import HTTPStatus
@@ -10,14 +9,11 @@ from core.security import (
     create_refresh_token,
     create_access_token,
     parse_token,
-    UserRole,
 )
 from core.hash import verify_password
 from fastapi import HTTPException
 from models.models import User
 from fastapi import Depends
-from schemas.auth import LoginRequest
-from schemas.auth import LoginResponse
 from fastapi import APIRouter, Response
 from db.db_config import get_session
 from sqlmodel import Session
@@ -28,42 +24,35 @@ private_auth_router = APIRouter(
 )
 
 
-@public_auth_router.post(
-    "/login", response_model=LoginResponse, status_code=HTTPStatus.OK
-)
+@public_auth_router.post("/login", status_code=HTTPStatus.OK)
 def login(
-    login_request: LoginRequest,
     response: Response,
+    login_request: OAuth2PasswordRequestForm = Depends(),
     session: Session = Depends(get_session),
 ):
-    try:
-        user = session.exec(
-            select(User).where(User.email == login_request.email)
-        ).first()
-        if user is None:
-            raise HTTPException(status_code=403, detail="user not found")
+    user = session.exec(
+        select(User).where(User.email == login_request.username)
+    ).first()
 
-        if not verify_password(login_request.password, user.password):
-            raise HTTPException(status_code=403, detail="password not match")
+    if user is None:
+        raise HTTPException(status_code=403, detail="user not found")
 
-        access_token = create_access_token(user.id, user.role)
-        refresh_token = create_refresh_token(user.id, user.role)
+    if not verify_password(login_request.password, user.password):
+        raise HTTPException(status_code=403, detail="password not match")
 
-        response.set_cookie(
-            "refresh_token",
-            refresh_token,
-            httponly=True,
-            secure=True,
-            samesite="strict",
-            max_age=60 * 60 * 24 * 7,
-        )
+    access_token = create_access_token(user.id, user.role)
+    refresh_token = create_refresh_token(user.id, user.role)
 
-        return LoginResponse(access_token=access_token)
-    except Exception as e:
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            detail=f"{e}" + "Something went wrong in creating the token",
-        )
+    response.set_cookie(
+        "refresh_token",
+        refresh_token,
+        httponly=True,
+        secure=True,
+        samesite="strict",
+        max_age=60 * 60 * 24 * 7,
+    )
+
+    return {"access_token": access_token}
 
 
 # ------------------------------------------------------------------------------------------------------------------
