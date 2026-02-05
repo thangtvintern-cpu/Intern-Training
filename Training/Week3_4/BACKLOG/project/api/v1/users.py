@@ -20,15 +20,14 @@ private_user_router = APIRouter(
 
 # Public Endpoints
 
+
 @public_user_router.post(
     "/", response_model=UserResponse, status_code=HTTPStatus.CREATED
 )
 def create_user(
-    user: UserCreate,
-    user_service: UserService = Depends(get_user_service)
+    user: UserCreate, user_service: UserService = Depends(get_user_service)
 ):
     return user_service.create_user(user)
-
 
 
 # ------------------------------------------------------------------------------------------------------------------
@@ -36,37 +35,41 @@ def create_user(
 
 # Private Endpoints
 
+
 @private_user_router.put("/", response_model=UserResponse, status_code=HTTPStatus.OK)
 def update_user(
     user: UserUpdate,
     user_service: UserService = Depends(get_user_service),
     current_user: User = Depends(get_current_user),
 ):
-    return user_service.update_user(user,current_user)
-    
+    return user_service.update_user(user, current_user)
+
+
+@private_user_router.get("/me", response_model=UserResponse, status_code=HTTPStatus.OK)
+def get_profile(current_user: User = Depends(get_current_user)):
+    return current_user
+
 
 @private_user_router.get(
     "/", response_model=list[UserResponse], status_code=HTTPStatus.OK
 )
 def get_users(admin: AdminRole, user_service: UserService = Depends(get_user_service)):
     return user_service.get_all_users()
-    
 
 
 @private_user_router.get(
     "/{id}", response_model=UserResponse, status_code=HTTPStatus.OK
 )
-def get_user(admin: AdminRole, id: str,user_service: UserService = Depends(get_user_service)):
+def get_user(
+    admin: AdminRole, id: str, user_service: UserService = Depends(get_user_service)
+):
     return user_service.get_user_by_id(id)
 
 
 @private_user_router.delete(
     "/{id}", response_model=UserResponse, status_code=HTTPStatus.OK
 )
-def delete_user(admin: AdminRole, id: str,user_service: UserService = Depends(get_user_service)):
+def delete_user(
+    admin: AdminRole, id: str, user_service: UserService = Depends(get_user_service)
+):
     return user_service.delete_user(id)
-
-
-@private_user_router.get("/me",response_model=UserResponse,status_code=HTTPStatus.OK)
-def get_current_user(current_user: User = Depends(get_current_user)):
-    return current_user
