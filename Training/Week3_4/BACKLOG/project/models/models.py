@@ -1,3 +1,4 @@
+from sqlalchemy import Column
 from sqlmodel import Relationship
 from sqlalchemy import UUID
 from typing import Optional
@@ -8,7 +9,7 @@ from schemas.user import UserRole
 
 
 class BaseModel(SQLModel):
-    id: UUID = Field(default_factory=uuid4, primary_key=True, nullable=False)
+    id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
     created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
     updated_at: Optional[datetime] = Field(default=None)
 

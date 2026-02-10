@@ -1,15 +1,12 @@
 from repository.base_repository import BaseRepository
 from models.models import Product
-from sqlmodel import Session
-
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 class ProductRepository(BaseRepository[Product]):
-    def __init__(self, session: Session):
+    def __init__(self, session: AsyncSession):
         super().__init__(Product, session)
 
-    def get_by_name(self, name: str):
-        return (
-            self.session.query(self.model_type)
-            .filter(self.model_type.name == name)
-            .first()
-        )
+    async def get_by_name(self, name: str):
+        result = await self.session.execute(select(self.model_type).where(self.model_type.name == name))
+        return result.scalars().first()

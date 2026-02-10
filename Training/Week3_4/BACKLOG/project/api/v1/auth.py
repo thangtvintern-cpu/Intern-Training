@@ -16,7 +16,7 @@ from models.models import User
 from fastapi import Depends
 from fastapi import APIRouter, Response
 from db.db_config import get_session
-from sqlmodel import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 public_auth_router = APIRouter(prefix="/auth", tags=["v1 - auth"])
 private_auth_router = APIRouter(
@@ -25,14 +25,15 @@ private_auth_router = APIRouter(
 
 
 @public_auth_router.post("/login", status_code=HTTPStatus.OK)
-def login(
+async def login(
     response: Response,
     login_request: OAuth2PasswordRequestForm = Depends(),
-    session: Session = Depends(get_session),
+    session: AsyncSession = Depends(get_session),
 ):
-    user = session.exec(
+    result = await session.execute(
         select(User).where(User.email == login_request.username)
-    ).first()
+    )
+    user = result.scalars().first()
 
     if user is None:
         raise HTTPException(status_code=403, detail="user not found")

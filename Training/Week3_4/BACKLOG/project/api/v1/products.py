@@ -1,8 +1,8 @@
 from service.product_service import get_product_service, ProductService
 from fastapi import Query
 from typing import Annotated
-from schemas.products import Pagination
-from core.security import get_current_user, parse_token, UserRole
+from schemas.common import Pagination
+from core.security import get_current_user, parse_token
 from models.models import User
 from schemas.products import ProductUpdate
 from schemas.products import ProductCreate
@@ -22,7 +22,7 @@ private_product_router = APIRouter(
 @public_product_router.get(
     "/", response_model=list[ProductResponse], status_code=HTTPStatus.OK
 )
-def get_products_pagination(
+async def get_products_pagination(
     pagination: Annotated[Pagination, Query()],
     product_service: ProductService = Depends(get_product_service),
 ):
@@ -34,15 +34,15 @@ def get_products_pagination(
 @public_product_router.get(
     "/all", response_model=list[ProductResponse], status_code=HTTPStatus.OK
 )
-def get_all_products(product_service: ProductService = Depends(get_product_service)):
+async def get_all_products(product_service: ProductService = Depends(get_product_service)):
     return product_service.get_all_products()
 
 
 @public_product_router.get(
     "/{id}", response_model=ProductResponse, status_code=HTTPStatus.OK
 )
-def get_product_by_id(
-    id: str, product_service: ProductService = Depends(get_product_service)
+async def get_product_by_id(
+    id: int, product_service: ProductService = Depends(get_product_service)
 ):
     return product_service.get_product_by_id(id)
 
@@ -56,7 +56,7 @@ def get_product_by_id(
 @private_product_router.post(
     "/", response_model=ProductResponse, status_code=HTTPStatus.CREATED
 )
-def create_product(
+async def create_product(
     product: ProductCreate,
     product_service: ProductService = Depends(get_product_service),
     current_user: User = Depends(get_current_user),
@@ -65,8 +65,8 @@ def create_product(
 
 
 @private_product_router.put("/{id}", status_code=HTTPStatus.OK)
-def update_product(
-    id: str,
+async def update_product(
+    id: int,
     product_update: ProductUpdate,
     current_user: User = Depends(get_current_user),
     product_service: ProductService = Depends(get_product_service),
@@ -75,8 +75,8 @@ def update_product(
 
 
 @private_product_router.delete("/{id}", status_code=HTTPStatus.OK)
-def delete_product(
-    id: str,
+async def delete_product(
+    id: int,
     current_user: User = Depends(get_current_user),
     product_service: ProductService = Depends(get_product_service),
 ):
