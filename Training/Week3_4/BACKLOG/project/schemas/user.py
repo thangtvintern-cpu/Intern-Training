@@ -33,12 +33,12 @@ class UserUpdate(BaseModel):
     mobile: Optional[str] = Field(default=None, min_length=10, max_length=10)
 
 
-class UserResponse(BaseModel):
-    id: UUID
-    name: str | None
+class UserRead(BaseModel):
+    id: int
+    name: str
     email: EmailStr
-    age: int | None
-    mobile: str | None
+    age: int
+    mobile: str
     is_active: bool
     role: UserRole
     created_at: datetime

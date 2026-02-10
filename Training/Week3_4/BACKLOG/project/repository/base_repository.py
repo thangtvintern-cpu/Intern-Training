@@ -1,4 +1,5 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.sql import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from typing import TypeVar, Type, Generic
 
 
@@ -6,32 +7,35 @@ ModelType = TypeVar("ModelType")
 
 
 class BaseRepository(Generic[ModelType]):
-    def __init__(self, model_type: Type[ModelType], session: Session):
+    def __init__(self, model_type: Type[ModelType], session: AsyncSession):
         self.model_type = model_type
         self.session = session
 
-    def get_by_pagination(self, offset: int, limit: int):
-        return self.session.query(self.model_type).offset(offset).limit(limit).all()
+    async def get_by_pagination(self, offset: int, limit: int):
+        result = await self.session.execute(select(self.model_type).offset(offset).limit(limit))
+        return result.scalars().all()
 
-    def get_all(self):
-        return self.session.query(self.model_type).all()
+    async def get_all(self):
+        result = await self.session.execute(select(self.model_type))
+        return result.scalars().all()
 
-    def get_by_id(self, id):
-        return self.session.get(self.model_type, id)
+    async def get_by_id(self, id):
+        result = await self.session.get(self.model_type, id)
+        return result
 
-    def create(self, model: ModelType):
+    async def create(self, model: ModelType):
         self.session.add(model)
-        self.session.commit()
-        self.session.refresh(model)
+        await self.session.commit()
+        await self.session.refresh(model)
         return model
 
-    def delete(self, model: ModelType):
+    async def delete(self, model: ModelType):
         self.session.delete(model)
-        self.session.commit()
+        await self.session.commit()
         return model
 
-    def update(self, model: ModelType):
+    async def update(self, model: ModelType):
         self.session.add(model)
-        self.session.commit()
-        self.session.refresh(model)
+        await self.session.commit()
+        await self.session.refresh(model)
         return model

@@ -5,7 +5,7 @@ from db.db_config import get_session
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from fastapi import Depends
-from core.config import SECRET_KEY
+from core.config import AppSettings
 from datetime import timedelta
 from datetime import datetime
 from pydantic import BaseModel
@@ -13,7 +13,8 @@ from jose import JWTError, jwt
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from schemas.user import UserRole
 from typing import Annotated
-
+settings = AppSettings()
+SECRET_KEY = settings.SECRET_KEY
 
 security = HTTPBearer()
 
@@ -26,7 +27,7 @@ class TokenPayLoad(BaseModel):
 
 
 def create_access_token(
-    sub: UUID, role: UserRole, expires_delta: timedelta = timedelta(minutes=30)
+    sub: UUID, role: UserRole, expires_delta: timedelta = timedelta(days=1)
 ):
     expires_at = datetime.utcnow() + expires_delta
     payload = {"sub": str(sub), "role": role, "type": "access", "exp": expires_at}
@@ -61,14 +62,14 @@ async def parse_token(
         return None
 
 
-def get_current_user(
+async def get_current_user(
     payload: TokenPayLoad = Depends(parse_token),
     session: Session = Depends(get_session),
 ):
     if payload is None or payload.type != "access":
         raise HTTPException(status_code=401, detail="Token không hợp lệ")
 
-    user = session.get(User, UUID(payload.sub))
+    user = await session.get(User, payload.sub)
     if user is None:
         raise HTTPException(status_code=401, detail="User không tồn tại")
     return user
@@ -85,6 +86,6 @@ def require_roles(allowed_roles: list[UserRole]):
     return role_check
 
 
-AdminRole = Annotated[User, Depends(require_roles([UserRole.ADMIN]))]
+AdminRoleDep = Annotated[User, Depends(require_roles([UserRole.ADMIN]))]
 
-UserRole = Annotated[User, Depends(require_roles([UserRole.USER, UserRole.ADMIN]))]
+UserRoleDep = Annotated[User, Depends(require_roles([UserRole.USER, UserRole.ADMIN]))]
