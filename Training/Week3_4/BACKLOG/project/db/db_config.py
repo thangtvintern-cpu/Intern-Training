@@ -19,17 +19,17 @@ async def create_db_and_table():
         await conn.run_sync(SQLModel.metadata.create_all)
     if SQLModel.metadata.tables:
         async with AsyncSession(engine) as session:
-            result = await session.execute(select(User).where(User.email == "weedkhalifa1608@gmail.com"))
+            result = await session.execute(select(User).where(User.email == settings.ADMIN_EMAIL))
             existing_user = result.scalars().first()
             if existing_user:
                 return
             user = User(
-                email= "weedkhalifa1608@gmail.com",
-                password= get_password_hash("Tranthang97"),
+                email= settings.ADMIN_EMAIL,
+                password= get_password_hash(settings.ADMIN_PASSWORD),
                 role= UserRole.ADMIN,
-                name = "thang",
+                name = "Admin",
                 mobile = "0123456789",
-                age = 27
+                age = 30
             )
             session.add(user)
             await session.commit()

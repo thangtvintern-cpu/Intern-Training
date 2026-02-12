@@ -38,7 +38,7 @@ class UserService(BaseService[User]):
     async def exists_user_by_email(self, email: str):
         return await self.repository.exists_by_email(email)
 
-    @cache_checker(lambda offset,limit: f"users:{offset}:{limit}", ttl=60 * 5)
+    @cache_checker(lambda offset,limit: f"user:{offset}:{limit}", ttl=60 * 5)
     async def get_user_with_pagination(self, offset: int, limit: int):
         users = await self.repository.get_by_pagination(offset, limit)
         return [UserRead.model_validate(user) for user in users]

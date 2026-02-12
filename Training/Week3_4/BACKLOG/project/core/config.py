@@ -1,5 +1,5 @@
 from functools import lru_cache
-from pydantic_settings import BaseSettings    
+from pydantic_settings import BaseSettings  
 
 
 class AppSettings(BaseSettings):
@@ -11,6 +11,12 @@ class AppSettings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 5
     refresh_token_expire_minutes: int = 60 * 60 * 24 * 7
+
+    ADMIN_EMAIL: str
+    ADMIN_PASSWORD: str
+    ADMIN_NAME: str = "Admin"
+    ADMIN_MOBILE: str = "0123456789"
+    ADMIN_AGE: int = 30
 
     model_config = {
         "env_file": ".env"

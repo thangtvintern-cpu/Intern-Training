@@ -1,22 +1,12 @@
 from core.security import security
 from fastapi.security import HTTPAuthorizationCredentials, OAuth2PasswordRequestForm
-from datetime import datetime
 from service.redis_service import get_redis_service
 from service.redis_service import RedisService
 from http import HTTPStatus
-from sqlmodel import select
-from core.security import (
-    create_refresh_token,
-    create_access_token,
-    parse_token,
-)
-from core.hash import verify_password
-from fastapi import HTTPException
-from models.models import User
+from core.security import parse_token
 from fastapi import Depends
 from fastapi import APIRouter, Response
-from db.db_config import get_session
-from sqlalchemy.ext.asyncio import AsyncSession
+from service.auth_service import get_auth_service, AuthService
 
 public_auth_router = APIRouter(prefix="/auth", tags=["v1 - auth"])
 private_auth_router = APIRouter(
@@ -28,21 +18,12 @@ private_auth_router = APIRouter(
 async def login(
     response: Response,
     login_request: OAuth2PasswordRequestForm = Depends(),
-    session: AsyncSession = Depends(get_session),
+    auth_service: AuthService = Depends(get_auth_service),
 ):
-    result = await session.execute(
-        select(User).where(User.email == login_request.username)
-    )
-    user = result.scalars().first()
-
-    if user is None:
-        raise HTTPException(status_code=403, detail="user not found")
-
-    if not verify_password(login_request.password, user.password):
-        raise HTTPException(status_code=403, detail="password not match")
-
-    access_token = create_access_token(user.id, user.role)
-    refresh_token = create_refresh_token(user.id, user.role)
+    login_result = await auth_service.login(login_request)
+    
+    access_token = login_result["access_token"]
+    refresh_token = login_result["refresh_token"]
 
     response.set_cookie(
         "refresh_token",
@@ -63,17 +44,8 @@ async def login(
 @private_auth_router.post("/logout", status_code=HTTPStatus.OK)
 async def logout(
     response: Response,
+    auth_service: AuthService = Depends(get_auth_service),
     redis_service: RedisService = Depends(get_redis_service),
     credentials: HTTPAuthorizationCredentials = Depends(security),
 ):
-    try:
-        payload = await parse_token(credentials, redis_service)
-        ttl = payload.exp - int(datetime.now().timestamp())
-        await redis_service.add_to_cache(credentials.credentials, payload.sub, ttl=ttl)
-        response.delete_cookie("refresh_token")
-        return {"message": "Logout successfully"}
-    except Exception as e:
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            detail=f"{e}" + "Something went wrong when deleting the cookie",
-        )
+    return await auth_service.logout(response, redis_service, credentials)
