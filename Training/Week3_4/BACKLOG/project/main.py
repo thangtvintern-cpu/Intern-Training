@@ -21,9 +21,9 @@ def hello_world():
 
 
 
-@app.on_event("startup")
-async def test_redis():
-    redis = get_redis()
-    print("Redis is running: ",await redis.ping())
+# @app.on_event("startup")
+# async def test_redis():
+#     redis = get_redis()
+#     print("Redis is running: ",await redis.ping())
 
 

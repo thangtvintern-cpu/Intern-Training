@@ -52,7 +52,7 @@ async def get_user(
     return await user_service.get_user_by_id(id)
 
 
-@private_user_router.delete("/{id}", response_model=UserRead, status_code=HTTPStatus.OK)
+@private_user_router.delete("/{id}", status_code=HTTPStatus.OK)
 async def delete_user(
     admin: AdminRoleDep, id: int, user_service: UserService = Depends(get_user_service)
 ):

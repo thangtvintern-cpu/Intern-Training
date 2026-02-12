@@ -32,7 +32,7 @@ def create_access_token(
     expires_at = datetime.utcnow() + expires_delta
     payload = {"sub": str(sub), "role": role, "type": "access", "exp": expires_at}
 
-    return jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+    return jwt.encode(payload, SECRET_KEY, algorithm=settings.jwt_algorithm)
 
 
 def create_refresh_token(
@@ -41,7 +41,7 @@ def create_refresh_token(
     expires_at = datetime.utcnow() + expires_delta
     payload = {"sub": str(sub), "role": role, "type": "refresh", "exp": expires_at}
 
-    return jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+    return jwt.encode(payload, SECRET_KEY, algorithm=settings.jwt_algorithm)
 
 
 async def parse_token(
@@ -56,7 +56,7 @@ async def parse_token(
         raise HTTPException(status_code=401, detail="Token đã bị thu hồi")
 
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[settings.jwt_algorithm])
         return TokenPayLoad(**payload)
     except JWTError:
         return None
