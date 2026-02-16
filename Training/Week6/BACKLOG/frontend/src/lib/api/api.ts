@@ -20,25 +20,25 @@ axiosInstance.interceptors.request.use((config) => {
 
 
 
-axiosInstance.interceptors.response.use((response) => response, 
+axiosInstance.interceptors.response.use((response) => response,
     async (error: AxiosError) => {
         const request = error.config as any
         if (error.response?.status === 401 && request && !request._retry) {
             request._retry = true
-            try{
+            try {
                 const data = await axiosInstance.post("/auth/refresh")
                 localStorage.setItem("token", data.data.access_token)
                 localStorage.setItem("refresh_token", data.data.refresh_token)
-                if (request.headers){
+                if (request.headers) {
                     request.headers.Authorization = `Bearer ${data.data.access_token}`
                 }
                 return axiosInstance(request)
-            }catch(error){
+            } catch (error) {
                 localStorage.removeItem("token")
                 localStorage.removeItem("refresh_token")
                 window.location.href = "/login"
                 return Promise.reject(error)
-            }   
+            }
         }
         return Promise.reject(error)
     }

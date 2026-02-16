@@ -1,5 +1,5 @@
 export type { User, AuthStatus, AuthResponse, LoginRequest, RegisterRequest } from "./types"
-export { AuthProvider, useAuthActions, useAuthState } from "./context/AuthContext"
-export { useAuth } from "./hooks/useAuth"
+export { AuthProvider, useAuthActions } from "./context/AuthContext"
+export { useAuth, useAuthUser, useAuthStatus } from "./hooks/useAuth"
 export { authService } from "./service/authService"
 export { tokenService } from "./service/tokenService"

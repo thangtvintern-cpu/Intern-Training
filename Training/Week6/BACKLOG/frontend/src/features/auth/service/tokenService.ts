@@ -1,14 +1,14 @@
 
 
-let _accessToken :string | null = null;
+let _accessToken: string | null = null;
 export const tokenService = {
-    setToken : (token:string) => {
+    setToken: (token: string) => {
         _accessToken = token;
     },
-    getToken : () => {
+    getToken: () => {
         return _accessToken
     },
-    clearToken : () => {
+    clearToken: () => {
         _accessToken = null
     }
 }

@@ -16,3 +16,14 @@ export const useAuth = () => {
         ...actions
     }
 }
+
+
+export const useAuthStatus = () => {
+    return useAuthState().status
+}
+
+
+export const useAuthUser = () => {
+    return useAuthState().user
+}
+

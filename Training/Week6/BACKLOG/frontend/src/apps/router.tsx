@@ -1,5 +1,15 @@
 import { createBrowserRouter } from "react-router-dom";
 import Layout from "./Layout";
+import PublicRoute from "../features/auth/components/PublicRoute";
+import LoginPage from "../pages/public/special/LoginPage";
+import RegisterPage from "../pages/public/special/RegisterPage";
+import PrivateRoute from "../features/auth/components/PrivateRoute";
+import UserProfilePage from "../pages/private/UserProfilePage";
+import HomePage from "../pages/public/HomePage";
+import AboutPage from "../pages/public/AboutPage";
+import FAQsPage from "../pages/public/FAQsPage";
+import RoleGuard from "../features/auth/components/RoleGuard";
+import AdminPage from "../pages/private/admin/AdminPage";
 
 
 
@@ -10,10 +20,46 @@ export const route = createBrowserRouter([
         path: "/",
         element: <Layout />,
         children: [
+            // không yêu cầu đăng nhập
+            {element:<HomePage/>,path: "/",index:true},
+            {element:<AboutPage/>,path: "/about"},
+            {element:<FAQsPage/>,path: "/faqs"},
+
+
+
+            //  không cho phép truy cập vào route này khi đã đăng nhập rồi
             {
-                index: true,
-                
+                element: <PublicRoute/>,
+                children:[
+                    {element: <LoginPage/>, path: "/login"},
+                    {element: <RegisterPage/>, path: "/register"},
+                ]
             },
+
+
+            // yêu cầu phải đăng nhập mới được truy cập vào route này
+            {
+                element: <PrivateRoute/>,
+                children:[
+                    // for user
+                    {element: <UserProfilePage/>, path: "/profile"},
+
+
+
+
+
+                    
+                    // for admin
+                    {
+                        element: <RoleGuard allowedRoles={['admin']}/>,
+                        children:[
+                            {element: <AdminPage/>, path: "/admin"},
+                        ]
+                            
+                    }
+                ]
+            },
+
         ],
     },
 ])
