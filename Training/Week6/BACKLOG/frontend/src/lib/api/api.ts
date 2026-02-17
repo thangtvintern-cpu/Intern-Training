@@ -1,5 +1,6 @@
 import axios, { AxiosError, type AxiosRequestConfig } from "axios"
-
+import { tokenService } from "../../features/auth/service/tokenService"
+import { authService } from "../../features/auth/service/authService"
 
 const axiosInstance = axios.create({
     baseURL: `${import.meta.env.VITE_API_URL}/api/v1`,
@@ -11,7 +12,7 @@ const axiosInstance = axios.create({
 })
 
 axiosInstance.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token")
+    const token = tokenService.getToken()
     if (token) {
         config.headers.Authorization = `Bearer ${token}`
     }
@@ -26,17 +27,15 @@ axiosInstance.interceptors.response.use((response) => response,
         if (error.response?.status === 401 && request && !request._retry) {
             request._retry = true
             try {
-                const data = await axiosInstance.post("/auth/refresh")
-                localStorage.setItem("token", data.data.access_token)
-                localStorage.setItem("refresh_token", data.data.refresh_token)
+                const { access_token } = await authService.refresh()
+                tokenService.setToken(access_token)
                 if (request.headers) {
-                    request.headers.Authorization = `Bearer ${data.data.access_token}`
+                    request.headers.Authorization = `Bearer ${access_token}`
                 }
                 return axiosInstance(request)
             } catch (error) {
-                localStorage.removeItem("token")
-                localStorage.removeItem("refresh_token")
-                window.location.href = "/login"
+                tokenService.clearToken()
+                window.dispatchEvent(new Event("force-logout"))
                 return Promise.reject(error)
             }
         }

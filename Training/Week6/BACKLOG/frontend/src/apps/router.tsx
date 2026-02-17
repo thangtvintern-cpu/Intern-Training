@@ -1,5 +1,4 @@
 import { createBrowserRouter } from "react-router-dom";
-import Layout from "./Layout";
 import PublicRoute from "../features/auth/components/PublicRoute";
 import LoginPage from "../pages/public/special/LoginPage";
 import RegisterPage from "../pages/public/special/RegisterPage";
@@ -10,6 +9,7 @@ import AboutPage from "../pages/public/AboutPage";
 import FAQsPage from "../pages/public/FAQsPage";
 import RoleGuard from "../features/auth/components/RoleGuard";
 import AdminPage from "../pages/private/admin/AdminPage";
+import AppProviders from "./AppProviders";
 
 
 
@@ -17,45 +17,44 @@ import AdminPage from "../pages/private/admin/AdminPage";
 
 export const route = createBrowserRouter([
     {
-        path: "/",
-        element: <Layout />,
+        element: <AppProviders />,
         children: [
             // không yêu cầu đăng nhập
-            {element:<HomePage/>,path: "/",index:true},
-            {element:<AboutPage/>,path: "/about"},
-            {element:<FAQsPage/>,path: "/faqs"},
+            { element: <HomePage />, path: "/", index: true },
+            { element: <AboutPage />, path: "/about" },
+            { element: <FAQsPage />, path: "/faqs" },
 
 
 
             //  không cho phép truy cập vào route này khi đã đăng nhập rồi
             {
-                element: <PublicRoute/>,
-                children:[
-                    {element: <LoginPage/>, path: "/login"},
-                    {element: <RegisterPage/>, path: "/register"},
+                element: <PublicRoute />,
+                children: [
+                    { element: <LoginPage />, path: "/login" },
+                    { element: <RegisterPage />, path: "/register" },
                 ]
             },
 
 
             // yêu cầu phải đăng nhập mới được truy cập vào route này
             {
-                element: <PrivateRoute/>,
-                children:[
+                element: <PrivateRoute />,
+                children: [
                     // for user
-                    {element: <UserProfilePage/>, path: "/profile"},
+                    { element: <UserProfilePage />, path: "/profile" },
 
 
 
 
 
-                    
+
                     // for admin
                     {
-                        element: <RoleGuard allowedRoles={['admin']}/>,
-                        children:[
-                            {element: <AdminPage/>, path: "/admin"},
+                        element: <RoleGuard allowedRoles={['admin']} />,
+                        children: [
+                            { element: <AdminPage />, path: "/admin" },
                         ]
-                            
+
                     }
                 ]
             },

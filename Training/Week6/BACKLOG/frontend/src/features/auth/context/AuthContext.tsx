@@ -35,9 +35,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const login = async (data: LoginRequest, redirectTo?: string) => {
         dispatch({ type: "LOGIN_START" })
         try {
-            const response = await authService.login(data)
-            tokenService.setToken(response.access_token)
-            dispatch({ type: "LOGIN_SUCCESS", payload: response })
+            const { user, access_token } = await authService.login(data)
+            tokenService.setToken(access_token)
+            tokenService.setFlag(user.id)
+            dispatch({ type: "LOGIN_SUCCESS", payload: { user, access_token } })
             if (redirectTo) {
                 navigate(redirectTo, { replace: true })
             }
@@ -53,6 +54,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             await authService.logout()
             dispatch({ type: "LOGOUT" })
             tokenService.clearToken()
+            tokenService.clearFlag()
             navigate("/login", { replace: true })
         } catch (error) {
             const message = error instanceof Error ? error.message : "Logout failed"
@@ -66,6 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
             const response = await authService.register(data)
             tokenService.setToken(response.access_token)
+            tokenService.setFlag(response.user.id)
             dispatch({ type: "REGISTER_SUCCESS", payload: response })
         } catch (err) {
             const message = err instanceof Error ? err.message : "Register failed"
@@ -73,6 +76,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             throw err
         }
     }
+
+    useEffect(() => {
+
+        const tryGetAuth = async () => {
+            const flag = tokenService.getFlag()
+            if (flag) {
+                dispatch({ type: "GET_ME_START" })
+                try {
+                    const { access_token } = await authService.refresh()
+                    const { user } = await authService.getMe()
+                    tokenService.setToken(access_token)
+                    dispatch({ type: "GET_ME_SUCCESS", payload: { user } })
+                } catch (err) {
+                    const message = err instanceof Error ? err.message : "Failed to get user"
+                    dispatch({ type: "GET_ME_FAILURE", payload: message })
+                }
+            }
+            dispatch({ type: "NO_SESSION" })
+        }
+        tryGetAuth()
+    }, [])
+
 
     return (
         <AuthStateContext.Provider value={state}>

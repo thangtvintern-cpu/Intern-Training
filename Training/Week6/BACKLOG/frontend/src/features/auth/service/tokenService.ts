@@ -10,5 +10,10 @@ export const tokenService = {
     },
     clearToken: () => {
         _accessToken = null
-    }
+    },
+
+    // flag để đánh dấu user đã login, khi logout phải clear
+    setFlag: (flag:string) => localStorage.setItem("flag", flag),
+    getFlag: () => localStorage.getItem("flag"),
+    clearFlag: () => localStorage.removeItem("flag")
 }

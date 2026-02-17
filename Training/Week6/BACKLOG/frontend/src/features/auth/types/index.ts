@@ -7,7 +7,7 @@ export interface User {
     created_at: string;
     updated_at?: string;
 }
-export type AuthStatus = "startup" | "loading" | "unauthenticated" | "authenticated"
+export type AuthStatus = "checking" | "loading" | "unauthenticated" | "authenticated"
 
 export interface AuthState {
     user: User | null;
@@ -18,13 +18,15 @@ export interface AuthState {
 export interface RefreshResponse {
     access_token: string;
 }
-
+export interface GetMeResponse {
+    user: User;
+}
 export interface LoginRequest {
     email: string;
     password: string;
 }
 
-export interface AuthResponse {
+export interface LoginResponse {
     access_token: string;
     user: User;
 }
@@ -43,11 +45,17 @@ export interface RegisterRequest {
 export type AuthAction =
 
     { type: "LOGIN_START" }
-    | { type: "LOGIN_SUCCESS", payload: AuthResponse }
+    | { type: "LOGIN_SUCCESS", payload: LoginResponse }
     | { type: "LOGIN_FAILURE", payload: string }
     | { type: "LOGOUT" }
     | { type: "REGISTER_START" }
-    | { type: "REGISTER_SUCCESS", payload: AuthResponse }
+    | { type: "REGISTER_SUCCESS", payload: LoginResponse }
     | { type: "REGISTER_FAILURE", payload: string }
     | { type: "APP_STARTUP" }
-    | { type: "TOKEN_REFRESHED", payload: RefreshResponse }
+    | { type: "TOKEN_REFRESH_START" }
+    | { type: "TOKEN_REFRESH_SUCCESS", payload: RefreshResponse }
+    | { type: "TOKEN_REFRESH_FAILURE", payload: string }
+    | { type: "GET_ME_START" }
+    | { type: "GET_ME_SUCCESS", payload: GetMeResponse }
+    | { type: "GET_ME_FAILURE", payload: string }
+    | { type: "NO_SESSION"}

@@ -1,11 +1,18 @@
+import { useAuthStatus } from "../features/auth"
+import LoadingPage from "../pages/common/LoadingPage"
 
 
 
-const AppInitial = () => {
+
+
+const AppInitial = ({ children }: { children: React.ReactNode }) => {
+    const status = useAuthStatus()
+
+    if (status === "checking" || status === "loading") return <LoadingPage />
     return (
-        <div>
-            <h1>AppInitial</h1>
-        </div>
+        <>
+            {children}
+        </>
     )
 }
 
