@@ -21,7 +21,7 @@ const Layout = () => {
 
                 {/* logo */}
                 <div className="flex items-center gap-3 px-2 mb-8">
-                    <div className="size-9 shrink-0 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-400 flex items-center justify-center text-white font-extrabold text-base shadow-md shadow-indigo-200">
+                    <div className="size-9 shrink-0 rounded-xl bg-linear-to-br from-indigo-500 to-indigo-400 flex items-center justify-center text-white font-extrabold text-base shadow-md shadow-indigo-200">
                         T
                     </div>
                     <span className="text-xl font-bold tracking-tight text-gray-900">Backlog</span>
@@ -134,7 +134,7 @@ const Layout = () => {
 
                 {/* Page content */}
                 <div className="flex-1 p-6 flex items-center justify-center">
-                    <Outlet />
+                    <Outlet/>
                 </div>
 
             </main>

@@ -22,9 +22,8 @@ const LoginPage = () => {
             password: "",
         }
     })
-    console.log("API URL: ", import.meta.env.VITE_API_BASE_URL)
-    const onSubmit = (data: LoginType) => {
-        login(data)
+    const onSubmit = async (data: LoginType) => {
+        await login(data)
     }
 
 

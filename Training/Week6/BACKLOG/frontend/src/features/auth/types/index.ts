@@ -39,7 +39,7 @@ export interface RegisterRequest {
     lastName: string;
     dateOfBirth: string;
     gender: string;
-    phoneNumber: string;
+    mobile: string;
     terms: boolean;
 }
 
