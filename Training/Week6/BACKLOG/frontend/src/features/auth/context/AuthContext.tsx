@@ -10,7 +10,7 @@ import { tokenService } from "../service/tokenService";
 interface AuthActions {
     login: (data: LoginRequest, redirectTo?: string) => Promise<void>
     logout: () => Promise<void>
-    register: (data: RegisterRequest) => Promise<void>
+    registerRequest: (data: RegisterRequest) => Promise<void>
 }
 
 const AuthStateContext = createContext<AuthState | null>(null)
@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     }
 
-    const register = async (data: RegisterRequest) => {
+    const registerRequest = async (data: RegisterRequest) => {
         dispatch({ type: "REGISTER_START" })
         try {
             const response = await authService.register(data)
@@ -101,7 +101,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     return (
         <AuthStateContext.Provider value={state}>
-            <AuthDispatchContext.Provider value={{ login, logout, register }}>
+            <AuthDispatchContext.Provider value={{ login, logout, registerRequest }}>
                 {children}
             </AuthDispatchContext.Provider>
         </AuthStateContext.Provider>

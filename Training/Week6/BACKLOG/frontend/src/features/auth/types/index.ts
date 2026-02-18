@@ -34,10 +34,13 @@ export interface LoginResponse {
 export interface RegisterRequest {
     email: string;
     password: string;
-    name: string;
-    age: number;
+    confirmPassword: string;
+    firstName: string;
+    lastName: string;
+    dateOfBirth: string;
     gender: string;
-    phone_number: string;
+    phoneNumber: string;
+    terms: boolean;
 }
 
 
@@ -58,4 +61,4 @@ export type AuthAction =
     | { type: "GET_ME_START" }
     | { type: "GET_ME_SUCCESS", payload: GetMeResponse }
     | { type: "GET_ME_FAILURE", payload: string }
-    | { type: "NO_SESSION"}
+    | { type: "NO_SESSION" }

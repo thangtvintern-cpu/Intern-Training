@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import PublicRoute from "../features/auth/components/PublicRoute";
-import LoginPage from "../pages/public/special/LoginPage";
-import RegisterPage from "../pages/public/special/RegisterPage";
+import LoginPage from "../features/auth/components/LoginPage";
+import RegisterPage from "../features/auth/components/RegisterPage";
 import PrivateRoute from "../features/auth/components/PrivateRoute";
 import UserProfilePage from "../pages/private/UserProfilePage";
 import HomePage from "../pages/public/HomePage";
