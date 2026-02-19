@@ -10,6 +10,8 @@ import FAQsPage from "../pages/public/FAQsPage";
 import RoleGuard from "../features/auth/components/RoleGuard";
 import AdminPage from "../pages/private/admin/AdminPage";
 import AppProviders from "./AppProviders";
+import AddToProduct from "../features/products/component/AddToProduct";
+import ContactPage from "../pages/public/Contact";
 
 
 
@@ -23,7 +25,8 @@ export const route = createBrowserRouter([
             { element: <HomePage />, path: "/", index: true },
             { element: <AboutPage />, path: "/about" },
             { element: <FAQsPage />, path: "/faqs" },
-
+            { element: <AddToProduct />, path: "/add-product" },
+            { element: <ContactPage />, path: "/contact" },
 
 
             //  không cho phép truy cập vào route này khi đã đăng nhập rồi
@@ -53,6 +56,7 @@ export const route = createBrowserRouter([
                         element: <RoleGuard allowedRoles={['admin']} />,
                         children: [
                             { element: <AdminPage />, path: "/admin" },
+
                         ]
 
                     }

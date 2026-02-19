@@ -2,13 +2,14 @@ import type { AuthState } from "../types";
 import { createContext, useContext, useEffect, useReducer } from "react";
 import type { ReactNode } from "react";
 import { reducer, INITIAL_STATE } from "../store/reducer";
-import type { LoginRequest, RegisterRequest } from "../types";
+import type { RegisterRequest } from "../types";
 import { authService } from "../service/authService";
 import { useNavigate } from "react-router-dom";
 import { tokenService } from "../service/tokenService";
+import toast from "react-hot-toast";
 
 interface AuthActions {
-    login: (data: LoginRequest, redirectTo?: string) => Promise<void>
+    login: (data: URLSearchParams, redirectTo?: string) => Promise<void>
     logout: () => Promise<void>
     registerRequest: (data: RegisterRequest) => Promise<void>
 }
@@ -32,18 +33,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [navigate])
 
-    const login = async (data: LoginRequest, redirectTo?: string) => {
-        dispatch({ type: "LOGIN_START" })
+    const login = async (data: URLSearchParams, redirectTo?: string) => {
         try {
+            setTimeout(() => { }, 3000)
             const { user, access_token } = await authService.login(data)
             tokenService.setToken(access_token)
             tokenService.setFlag(user.id)
+            toast.success("Login success")
             dispatch({ type: "LOGIN_SUCCESS", payload: { user, access_token } })
             if (redirectTo) {
                 navigate(redirectTo, { replace: true })
             }
         } catch (error) {
             const message = error instanceof Error ? error.message : "Login failed"
+            toast.error("Login failed")
             dispatch({ type: "LOGIN_FAILURE", payload: message })
             throw error
         }
@@ -55,26 +58,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             dispatch({ type: "LOGOUT" })
             tokenService.clearToken()
             tokenService.clearFlag()
+            toast.success("Logout success")
             navigate("/login", { replace: true })
         } catch (error) {
             const message = error instanceof Error ? error.message : "Logout failed"
+            toast.error("Logout failed")
             dispatch({ type: "LOGIN_FAILURE", payload: message })
             throw error
         }
     }
 
     const registerRequest = async (data: RegisterRequest) => {
-        dispatch({ type: "REGISTER_START" })
-        try {
-            const response = await authService.register(data)
-            tokenService.setToken(response.access_token)
-            tokenService.setFlag(response.user.id)
-            dispatch({ type: "REGISTER_SUCCESS", payload: response })
-        } catch (err) {
-            const message = err instanceof Error ? err.message : "Register failed"
-            dispatch({ type: "REGISTER_FAILURE", payload: message })
-            throw err
-        }
+        await authService.register(data)
     }
 
     useEffect(() => {
@@ -82,7 +77,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const tryGetAuth = async () => {
             const flag = tokenService.getFlag()
             if (flag) {
-                dispatch({ type: "GET_ME_START" })
                 try {
                     const { access_token } = await authService.refresh()
                     const { user } = await authService.getMe()

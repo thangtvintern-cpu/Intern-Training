@@ -1,8 +1,9 @@
-import { NavLink } from "react-router-dom"
+import { NavLink, useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useAuthActions } from "../context/AuthContext"
+import toast from "react-hot-toast"
 
 const registerSchema = z.object({
     email: z.string().min(6, { message: "Email must be at least 6 characters" }),
@@ -22,8 +23,9 @@ const registerSchema = z.object({
 type RegisterType = z.infer<typeof registerSchema>
 
 const RegisterPage = () => {
-
     const { registerRequest } = useAuthActions()
+    const navigate = useNavigate()
+    const { setError } = useForm<RegisterType>()
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<RegisterType>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
@@ -40,7 +42,16 @@ const RegisterPage = () => {
     })
 
     const onSubmit = async (data: RegisterType) => {
-        await registerRequest(data)
+        try {
+            await registerRequest(data)
+            toast.success("Register success")
+            navigate("/login", { replace: true })
+        } catch (error: any) {
+            if (error.response?.status === 400) {
+                setError("email", { message: error.response.data.message })
+            }
+            toast.error("Register failed")
+        }
     }
 
 

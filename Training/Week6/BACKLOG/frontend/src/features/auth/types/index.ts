@@ -2,12 +2,16 @@ export type Role = "admin" | "user"
 export interface User {
     id: string;
     email: string;
-    name: string;
+    firstName: string;
+    lastName: string;
+    dateOfBirth: string;
+    gender: string;
+    mobile: string;
     role: Role;
     created_at: string;
     updated_at?: string;
 }
-export type AuthStatus = "checking" | "loading" | "unauthenticated" | "authenticated"
+export type AuthStatus = "initial" | "unauthenticated" | "authenticated"
 
 export interface AuthState {
     user: User | null;
