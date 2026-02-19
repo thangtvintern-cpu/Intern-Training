@@ -1,23 +1,25 @@
 import { NavLink, Outlet } from "react-router-dom"
 import { BellRing, Sun, User } from "lucide-react"
+import { useAuth } from "../features/auth";
 
 const navItems = [
-    { to: "/", label: "Profile", icon: <User /> },
-    { to: "/", label: "Tạm", icon: <BellRing /> },
-    { to: "/", label: "Tạm", icon: <Sun /> },
-    { to: "/", label: "Tạm", icon: <User /> },
+    { to: "/profile", label: "Profile", icon: <User /> },
+    { to: "/temporary", label: "Tạm", icon: <BellRing /> },
+    { to: "/temporary", label: "Tạm", icon: <Sun /> },
+    { to: "/temporary", label: "Tạm", icon: <User /> },
 ]
 
 
 const Layout = () => {
 
+    const { user, logout, status } = useAuth();
 
 
     return (
         <div className="flex min-h-screen bg-gray-50 font-sans text-black">
 
 
-            <aside className="fixed inset-y-0 left-0 z-20 w-64 flex flex-col bg-white border-r border-gray-200 px-4 py-6">
+            <aside className="fixed inset-y-0 left-0 z-20 w-56 flex flex-col bg-white border-r border-gray-200 px-4 py-6">
 
                 {/* logo */}
                 <div className="flex items-center gap-3 px-2 mb-8">
@@ -38,7 +40,7 @@ const Layout = () => {
                             key={item.label}
                             className={({ isActive }) =>
                                 `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium no-underline transition-colors duration-150
-            ${isActive
+                                ${isActive
                                     ? "bg-indigo-50 text-indigo-600 font-semibold"
                                     : "text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                                 }`
@@ -56,20 +58,20 @@ const Layout = () => {
                         <div className="size-9 shrink-0 rounded-full bg-gray-200 flex items-center justify-center">
                             <User className="size-4 text-gray-500" />
                         </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-gray-800 truncate">User</p>
-                            <p className="text-xs text-gray-400 capitalize">Admin</p>
-                        </div>
-                        <button className="size-8 shrink-0 flex items-center justify-center rounded-lg border-none bg-transparent text-gray-400 cursor-pointer transition-colors hover:bg-red-50 hover:text-red-500">
-                            ↪
-                        </button>
+                        {status === "authenticated" && <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-gray-800 truncate">Hi,</p>
+                            <p className="text-xs text-gray-400 capitalize">{user?.firstName}</p>
+                        </div>}
+                        {status === "authenticated" && <button onClick={() => { logout() }} className="size-8 shrink-0 flex items-center justify-center rounded-lg border-none bg-transparent text-gray-400 cursor-pointer transition-colors hover:bg-red-50 hover:text-red-500">
+                            ↪ Logout
+                        </button>}
                     </div>
                 </div>
 
             </aside>
 
             {/* main */}
-            <main className="flex-1 ml-64 min-w-0 flex flex-col">
+            <main className="flex-1 ml-56 min-w-0 flex flex-col">
                 <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-200 px-6 py-3">
                     <div className="flex items-center gap-6">
 
@@ -104,7 +106,7 @@ const Layout = () => {
                                 className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent transition"
                             />
                         </div>
-                        <nav className="flex items-center gap-1 shrink-0">
+                        {status !== "authenticated" && <nav className="flex items-center gap-1 shrink-0">
                             <NavLink
                                 to="/login"
                                 className="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 no-underline rounded-md hover:bg-gray-100 transition-colors"
@@ -117,7 +119,7 @@ const Layout = () => {
                             >
                                 Register
                             </NavLink>
-                        </nav>
+                        </nav>}
                         {/* user */}
                         <div className="flex items-center gap-3 ml-auto shrink-0">
 
@@ -134,7 +136,7 @@ const Layout = () => {
 
                 {/* Page content */}
                 <div className="flex-1 p-6 flex items-center justify-center">
-                    <Outlet/>
+                    <Outlet />
                 </div>
 
             </main>

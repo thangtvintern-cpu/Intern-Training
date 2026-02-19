@@ -1,8 +1,8 @@
-import type { LoginRequest, LoginResponse, RegisterRequest, RefreshResponse, GetMeResponse } from "../types";
+import type { LoginResponse, RegisterRequest, RefreshResponse, GetMeResponse } from "../types";
 import { api } from "../../../lib/api/api";
 
 export const authService = {
-    login: async (data: LoginRequest): Promise<LoginResponse> => {
+    login: async (data: URLSearchParams): Promise<LoginResponse> => {
         return await api.post<LoginResponse>("/auth/login", data, {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
@@ -12,8 +12,8 @@ export const authService = {
     logout: async (): Promise<void> => {
         return await api.post("/auth/logout")
     },
-    register: async (data: RegisterRequest): Promise<LoginResponse> => {
-        return await api.post<LoginResponse>("/users/register", data)
+    register: async (data: RegisterRequest): Promise<void> => {
+        return await api.post<void>("/users/register", data)
     },
     refresh: async (): Promise<RefreshResponse> => {
         return await api.post<RefreshResponse>("/auth/refresh")

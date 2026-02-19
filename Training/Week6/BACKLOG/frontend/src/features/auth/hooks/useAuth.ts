@@ -10,8 +10,7 @@ export const useAuth = () => {
         accessToken: state.access_token,
         status: state.status,
         isAuthenticated: state.status === "authenticated",
-        isStartup: state.status === "checking",
-        isLoading: state.status === "loading" || state.status === "checking",
+        isInitial: state.status === "initial",
         error: state.error,
         ...actions
     }

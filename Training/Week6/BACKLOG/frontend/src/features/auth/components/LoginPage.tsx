@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useAuthActions } from "../context/AuthContext"
 
 
+
 const LoginType = z.object({
     email: z.string().min(6, { message: "Email must be at least 6 characters" }),
     password: z.string().min(6, { message: "Password must be at least 6 characters" }),
@@ -13,7 +14,7 @@ const LoginType = z.object({
 type LoginType = z.infer<typeof LoginType>
 
 const LoginPage = () => {
-
+    const { setError } = useForm<LoginType>()
     const { login } = useAuthActions()
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginType>({
         resolver: zodResolver(LoginType),
@@ -23,7 +24,14 @@ const LoginPage = () => {
         }
     })
     const onSubmit = async (data: LoginType) => {
-        await login(data)
+        try {
+            const form = new URLSearchParams()
+            form.append("username", data.email)
+            form.append("password", data.password)
+            await login(form)
+        } catch (error) {
+            setError("email", { message: "Email or password is incorrect" })
+        }
     }
 
 
@@ -39,15 +47,14 @@ const LoginPage = () => {
                 </div>
                 <div>
                     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+                        <p className="text-red-500 text-sm mb-3">{errors.email?.message as string}</p>
                         <div>
                             <label htmlFor="email" className="text-sm font-bold text-gray-500 mb-2 inline-block">Email</label>
                             <input {...register("email")} placeholder="Enter your email" type="email" id="email" className="w-full px-3 py-2.5 placeholder:text-gray-400 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent transition" />
-                            <p className="text-red-500 text-sm mt-2">{errors.email?.message as string}</p>
                         </div>
                         <div>
                             <label htmlFor="password" className="text-sm font-bold text-gray-500 mb-2 inline-block">Password</label>
                             <input {...register("password")} placeholder="Enter your password" type="password" id="password" className="w-full px-3 py-2.5 placeholder:text-gray-400 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent transition" />
-                            <p className="text-red-500 text-sm mt-2">{errors.password?.message as string}</p>
                         </div>
                         <button disabled={isSubmitting} type="submit" className="w-full px-3 py-2.5 text-base font-bold bg-indigo-500 hover:bg-indigo-600 no-underline rounded-md transition-colors">Login</button>
                     </form>
