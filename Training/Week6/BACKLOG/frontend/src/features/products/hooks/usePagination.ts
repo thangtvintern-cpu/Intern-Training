@@ -1,29 +1,7 @@
 import { useEffect, useState } from "react"
-import { api } from "../../lib/api/api"
+import { api } from "../../../lib/api/api"
+import type { PaginationProps, PaginationResponse } from "../types"
 
-export interface Product {
-    id: number;
-    title: string;
-    price: number;
-    brand: string;
-    category: string;
-    discountPercentage: number;
-    description: string;
-    images: string[];
-    rating: number;
-    stock: number;
-    thumbnail: string;
-}
-
-export interface PaginationProps {
-    limit: number;
-    skip: number;
-    total?: number;
-}
-export interface PaginationResponse {
-    products: Product[];
-    pagination: PaginationProps;
-}
 
 const usePagination = ({ props }: { props: PaginationProps }) => {
     const { limit, skip } = props
@@ -42,7 +20,7 @@ const usePagination = ({ props }: { props: PaginationProps }) => {
                 setLoading(false)
             }
         }
-        getProducts()   
+        getProducts()
     }, [limit, skip])
 
     return { data, loading, error }
