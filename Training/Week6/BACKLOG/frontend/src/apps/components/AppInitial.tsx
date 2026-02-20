@@ -1,5 +1,5 @@
-import { useAuthStatus } from "../features/auth"
-import LoadingPage from "../pages/common/LoadingPage"
+import { useAuthStatus } from "../../features/auth"
+import LoadingPage from "../../pages/common/LoadingPage"
 
 
 

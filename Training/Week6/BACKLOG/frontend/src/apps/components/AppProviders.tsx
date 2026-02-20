@@ -1,7 +1,7 @@
 
-import { AuthProvider } from "../features/auth";
+import { AuthProvider } from "../../features/auth";
 import AppInitial from "./AppInitial";
-import Layout from "./Layout";
+import Layout from "../Layout";
 
 
 

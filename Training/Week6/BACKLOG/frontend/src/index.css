@@ -1,36 +1,49 @@
 @import "tailwindcss";
 
 
+
+
 @theme {
-  --color-background-bg: #f8fafc;
-  --color-surface: #ffffff;
-  --color-surface-soft: #f1f5f9;
 
+  /* ===== Surface ===== */
+  --color-page: rgb(249 250 251);
+  --color-surface: rgb(255 255 255);
+  --color-surface-hover: rgb(243 244 246);
+  --color-surface-muted: rgb(241 245 249);
 
-  --color-border: #e2e8f0;
+  /* ===== Border ===== */
+  --color-border: rgb(229 231 235);
+  --color-border-subtle: rgb(243 244 246);
 
-  --color-text-primary: #0f172a;
-  --color-text-secondary: #475569;
-  --color-text-muted: #94a3b8;
+  /* ===== Text ===== */
+  --color-text-primary: rgb(17 24 39);
+  --color-text-secondary: rgb(75 85 99);
+  --color-text-muted: rgb(156 163 175);
 
+  /* ===== Brand ===== */
+  --color-brand: rgb(99 102 241);
+  --color-brand-hover: rgb(79 70 229);
+  --color-brand-soft: rgb(238 242 255);
 
-  --color-primary: #6366f1;
-  --color-primary-hover: #4f46e5;
-  --color-primary-soft: #eef2ff;
+  /* ===== Success ===== */
+  --color-success: rgb(34 197 94);
+  --color-success-soft: rgb(240 253 244);
 
+  /* ===== Warning ===== */
+  --color-warning: rgb(234 179 8);
+  --color-warning-soft: rgb(254 249 195);
 
-  --color-accent: #14b8a6;
+  /* ===== Info ===== */
+  --color-info: rgb(59 130 246);
+  --color-info-soft: rgb(239 246 255);
 
-  --color-success: #22c55e;
-  --color-success-soft: #dcfce7;
+  /* ===== Danger ===== */
+  --color-danger: rgb(239 68 68);
+  --color-danger-soft: rgb(254 242 242);
 
-  --color-warning: #f59e0b;
-  --color-warning-soft: #fef3c7;
-
-  --color-error: #ef4444;
-  --color-error-soft: #fee2e2;
-
+  /* ===== Typography ===== */
   --font-family-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
@@ -38,6 +51,8 @@
   --font-size-xl: 1.25rem;
   --font-size-2xl: 1.5rem;
   --font-size-3xl: 1.875rem;
+
+  /* ===== Spacing ===== */
   --spacing: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
@@ -46,59 +61,65 @@
   --spacing-2xl: 2.5rem;
   --spacing-3xl: 3rem;
   --spacing-4xl: 4rem;
-  --spacing-5xl: 5rem;
-  --spacing-6xl: 6rem;
-  --spacing-7xl: 7rem;
-  --spacing-8xl: 8rem;
-  --spacing-9xl: 9rem;
-  --spacing-10xl: 10rem;
+
+  /* ===== Radius ===== */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
 
+  /* ===== Shadow ===== */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
 
+  /* ===== Transition ===== */
   --transition-fast: 0.15s ease;
   --transition-base: 0.2s ease;
 }
 
-@variants dark {
-  @theme {
-    /* Background */
-    --color-bg: #0f172a;
-    --color-surface: #1e293b;
-    --color-surface-soft: #334155;
 
-    /* Border */
-    --color-border: #334155;
 
-    /* Text */
-    --color-text-primary: #f1f5f9;
-    --color-text-secondary: #cbd5e1;
-    --color-text-muted: #64748b;
+.dark {
 
-    /* Primary */
-    --color-primary: #818cf8;
-    --color-primary-hover: #6366f1;
-    --color-primary-soft: rgba(99, 102, 241, 0.15);
+  /* ===== Surface ===== */
+  --color-page: rgb(14, 19, 38);
+  --color-surface: rgb(15 23 42);
+  --color-surface-hover: rgb(30 41 59);
+  --color-surface-muted: rgb(51 65 85);
 
-    /* Accent */
-    --color-accent: #2dd4bf;
+  /* ===== Border ===== */
+  --color-border: rgb(30 41 59);
+  --color-border-subtle: rgb(51 65 85);
 
-    /* Semantic */
-    --color-success: #22c55e;
-    --color-success-soft: rgba(34, 197, 94, 0.15);
+  /* ===== Text ===== */
+  --color-text-primary: rgb(226 232 240);
+  --color-text-secondary: rgb(148 163 184);
+  --color-text-muted: rgb(100 116 139);
 
-    --color-warning: #f59e0b;
-    --color-warning-soft: rgba(245, 158, 11, 0.15);
+  /* ===== Brand ===== */
+  --color-brand: rgb(129 140 248);
+  --color-brand-hover: rgb(99 102 241);
+  --color-brand-soft: rgb(99 102 241 / 0.12);
 
-    --color-error: #ef4444;
-    --color-error-soft: rgba(239, 68, 68, 0.15);
-  }
+  /* ===== Success ===== */
+  --color-success: rgb(74 222 128);
+  --color-success-soft: rgb(74 222 128 / 0.12);
+
+  /* ===== Warning ===== */
+  --color-warning: rgb(250 204 21);
+  --color-warning-soft: rgb(250 204 21 / 0.12);
+
+  /* ===== Info ===== */
+  --color-info: rgb(96 165 250);
+  --color-info-soft: rgb(96 165 250 / 0.12);
+
+  /* ===== Danger ===== */
+  --color-danger: rgb(248 113 113);
+  --color-danger-soft: rgb(248 113 113 / 0.12);
+
 }
+
 
 
 
@@ -117,3 +138,15 @@ textarea,
 select {}
 
 button {}
+
+.form-input {
+  @apply w-full px-3 py-2.5 text-sm bg-surface-muted border border-border rounded-lg placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition
+}
+
+.custom-btn {
+  @apply w-full px-3 py-2.5 text-base font-semibold bg-brand hover:bg-brand-hover text-white rounded-md transition disabled:opacity-60 disabled:cursor-not-allowed
+}
+
+.form-label {
+  @apply text-sm font-semibold text-text-secondary mb-2 inline-block
+}
